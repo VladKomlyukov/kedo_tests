@@ -12,6 +12,8 @@ config: Config = load_config()
 TOKEN_SENDER: str = config.stage.token_sender
 TOKEN_RECIPIENT: str = config.stage.token_recipient
 TOKEN_NOT_RESIDENT: str = config.stage.token_not_resident
+TOKEN_COORDINATOR: str = config.stage.token_coordinator
+TOKEN_SECOND_COORDINATOR: str = config.stage.token_second_coordinator
 TOKEN_SENDER_V3: str = config.stage.token_sender_v3
 TOKEN_RECIPIENT_V3: str = config.stage.token_recipient_v3
 TOKEN_NOT_RESIDENT_V3: str = config.stage.token_not_resident_v3
@@ -86,6 +88,24 @@ headers_not_resident: dict = {
     'Accept': 'application/json',
     'Authorization': f'Bearer {TOKEN_NOT_RESIDENT}',
     'employeeworkplaceid': f'{employee_workplace_Id_not_resident}',
+    'kedo-gateway-token-type': 'Development'
+}
+
+# хедеры для Согласованта
+headers_coordinator: dict = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': f'Bearer {TOKEN_COORDINATOR}',
+    'employeeworkplaceid': f'{employee_workplace_Id_coordinator}',
+    'kedo-gateway-token-type': 'Development'
+}
+
+# хедеры для второго Согласованта
+headers_second_coordinator: dict = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': f'Bearer {TOKEN_SECOND_COORDINATOR}',
+    'employeeworkplaceid': f'{employee_workplace_Id_second_coordinator}',
     'kedo-gateway-token-type': 'Development'
 }
 
@@ -348,6 +368,7 @@ def document_route_body_generate(method: str) -> dict:
     :param method: метод запроса
     :return: тело запроса
     """
+    # создание стандартного маршрута
     if method == 'post':
         route_body: dict = {
             "RouteStages": [
@@ -379,7 +400,7 @@ def document_route_body_generate(method: str) -> dict:
             ]
         }
         return route_body
-    # при изменении маршрута документа подставляем Отправителя в качестве Согласованта
+    # изменение стандартного маршрута, Отправитель становится Согласовантом
     elif method == 'put':
         route_body: dict = {
             "RouteStages": [
@@ -423,7 +444,7 @@ def document_route_body_generate(method: str) -> dict:
             ]
         }
         return route_body
-    # генерируем body для маршрута при отправке док-та на тенант
+    # создание маршрута для отправки док-та на тенант
     elif method == 'post_for_tenant':
         route_body: dict = {
             "RouteStages": [
@@ -454,7 +475,7 @@ def document_route_body_generate(method: str) -> dict:
             ]
         }
         return route_body
-    # изменяем body для маршрута при отправке док-та на тенант
+    # изменение маршрута для отправки док-та на тенант
     elif method == 'put_for_tenant':
         route_body: dict = {
             "RouteStages": [
@@ -494,7 +515,7 @@ def document_route_body_generate(method: str) -> dict:
             ]
         }
         return route_body
-
+    # создание маршрута док-та на v3
     elif method == 'post_v3':
         route_body: dict = {
             "RouteStages": [
@@ -526,7 +547,7 @@ def document_route_body_generate(method: str) -> dict:
             ]
         }
         return route_body
-
+    # изменение маршрута док-та на v3
     elif method == 'put_v3':
         route_body: dict = {
               "RouteStages": [
@@ -575,6 +596,136 @@ def document_route_body_generate(method: str) -> dict:
                   ]
                 }
               ]
+            }
+        return route_body
+    # создание маршрута док-та с 3 этапами согласования
+    elif method == 'post_three_cordinators':
+        route_body: dict = {
+              "RouteStages": [
+                {
+                  "RoutingRole": "Sender",
+                  "RoutingStrategy": "Sequential",
+                  "SignatureType": "SES, UUES",
+                  "RouteMembers": []
+                },
+                {
+                  "RouteMembers": [
+                    {
+                      "EmployeeWorkplaceId": employee_workplace_Id_coordinator,
+                      "SignatureType": "SES",
+                      "RecipientTenant": False
+                    }
+                  ],
+                  "SignatureType": "SES",
+                  "RoutingRole": "Coordinator",
+                  "RoutingStrategy": "ParallelOne"
+                },
+                {
+                  "RouteMembers": [
+                    {
+                      "EmployeeWorkplaceId": employee_workplace_Id_second_coordinator,
+                      "SignatureType": "UUES, SES",
+                      "RecipientTenant": False
+                    },
+                    {
+                      "EmployeeWorkplaceId": employee_workplace_Id_not_resident,
+                      "SignatureType": "UUES, SES",
+                      "RecipientTenant": False
+                    }
+                  ],
+                  "SignatureType": "UUES, SES",
+                  "RoutingRole": "Coordinator",
+                  "RoutingStrategy": "ParallelOne"
+                },
+                {
+                  "RouteMembers": [
+                    {
+                      "EmployeeWorkplaceId": employee_workplace_Id_sender,
+                      "SignatureType": "UUES",
+                      "RecipientTenant": False
+                    }
+                  ],
+                  "SignatureType": "UUES",
+                  "RoutingRole": "Coordinator",
+                  "RoutingStrategy": "ParallelOne"
+                },
+                {
+                  "RoutingRole": "Recipient",
+                  "RoutingStrategy": "ParallelOne",
+                  "SignatureType": "SES, UUES",
+                  "RouteMembers": []
+                }
+              ]
+            }
+        return route_body
+    # изменение маршрута док-та с 3 этапами Согласования
+    elif method == 'put_three_cordinators':
+        route_body: dict = {
+                "RouteStages": [
+                    {
+                        "RoutingStrategy": "Sequential",
+                        "RoutingRole": "Sender",
+                        "SignatureType": "UUES",
+                        "RouteMembers": [
+                            {
+                                "EmployeeWorkplaceId": employee_workplace_Id_sender,
+                                "SignatureType": "UUES"
+                            }
+                        ]
+                    },
+                    {
+                        "RoutingStrategy": "ParallelOne",
+                        "RoutingRole": "Coordinator",
+                        "SignatureType": "SES",
+                        "RouteMembers": [
+                            {
+                                "EmployeeWorkplaceId": employee_workplace_Id_coordinator,
+                                "SignatureType": "SES"
+                            }
+                        ]
+                    },
+                    {
+                        "RoutingStrategy": "ParallelOne",
+                        "RoutingRole": "Coordinator",
+                        "SignatureType": "SES, UUES",
+                        "RouteMembers": [
+                            {
+                                "EmployeeWorkplaceId":  employee_workplace_Id_second_coordinator,
+                                "SignatureType": "SES, UUES"
+                            },
+                            {
+                                "EmployeeWorkplaceId": employee_workplace_Id_not_resident,
+                                "SignatureType": "SES, UUES"
+                            }
+                        ]
+                    },
+                    {
+                        "RoutingStrategy": "ParallelOne",
+                        "RoutingRole": "Coordinator",
+                        "SignatureType": "UUES",
+                        "RouteMembers": [
+                            {
+                                "EmployeeWorkplaceId": employee_workplace_Id_sender,
+                                "SignatureType": "UUES"
+                            },
+                            {
+                                "EmployeeWorkplaceId": employee_workplace_Id_coordinator,
+                                "SignatureType": "UUES"
+                            }
+                        ]
+                    },
+                    {
+                        "RoutingStrategy": "ParallelOne",
+                        "RoutingRole": "Recipient",
+                        "SignatureType": "SES, UUES",
+                        "RouteMembers": [
+                            {
+                                "RecipientTenant": True,
+                                "SignatureType": "SES, UUES"
+                            }
+                        ]
+                    }
+                ]
             }
         return route_body
 

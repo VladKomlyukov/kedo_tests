@@ -34,8 +34,3 @@ def select_confirmation_code(Employee_id: str) -> str:
             '"RequestCertificateStatus" = %s', (f'{Employee_id}', 4))
         result = cursor.fetchone()
         return result[0]
-
-
-# для проверки результатов sql-запросов
-if __name__ == "__main__":
-    print(select_confirmation_code("950f1d62-9ffd-4bb9-8bfc-802b1103e8b9"))

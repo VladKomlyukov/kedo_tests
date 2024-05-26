@@ -9,6 +9,8 @@ class StageData:
     token_sender: str
     token_recipient: str
     token_not_resident: str
+    token_coordinator: str
+    token_second_coordinator: str
     token_sender_v3: str
     token_recipient_v3: str
     token_not_resident_v3: str
@@ -19,6 +21,8 @@ class StageData:
     phone_number_sender: str
     phone_number_recipient: str
     phone_number_not_resident: str
+    phone_number_coordinator: str
+    phone_number_second_coordinator: str
     password: str
     employee_workplace_Id_sender: str
     employee_workplace_Id_recipient: str
@@ -36,7 +40,8 @@ class Secrets:
     token_url: str
     audience: str
     issuer: str
-    key: str
+    key_kedo: str
+    key_dev: str
 
 @dataclass
 class DataBaseConfigStage:
@@ -55,7 +60,7 @@ class TokenData:
     issuer: str
     employee_workplace_id: str
     employee_id: str
-    key: str
+
 
 @dataclass
 class Config:
@@ -77,6 +82,8 @@ def load_config(path: str | None = None) -> Config:
             token_sender=env('TOKEN_STAGE_SENDER'),
             token_recipient=env('TOKEN_STAGE_RECIPIENT'),
             token_not_resident=env('TOKEN_STAGE_NOT_RESIDENT'),
+            token_coordinator=env('TOKEN_STAGE_COORDINATOR'),
+            token_second_coordinator=env('TOKEN_STAGE_SECOND_COORDINATOR'),
             token_sender_v3=env('TOKEN_STAGE_SENDER_V3'),
             token_recipient_v3=env('TOKEN_STAGE_RECIPIENT_V3'),
             token_not_resident_v3=env('TOKEN_STAGE_NOT_RESIDENT_V3'),
@@ -87,6 +94,8 @@ def load_config(path: str | None = None) -> Config:
             phone_number_sender=env('PHONE_NUMBER_SENDER'),
             phone_number_recipient=env('PHONE_NUMBER_RECIPIENT'),
             phone_number_not_resident=env('PHONE_NUMBER_NOT_RESIDENT'),
+            phone_number_coordinator=env('PHONE_NUMBER_COORDINATOR'),
+            phone_number_second_coordinator=env('PHONE_NUMBER_SECOND_COORDINATOR'),
             password=env('PASSWORD'),
             employee_workplace_Id_sender=env('employee_workplace_Id_sender'),
             employee_workplace_Id_recipient=env('employee_workplace_Id_recipient'),
@@ -109,14 +118,14 @@ def load_config(path: str | None = None) -> Config:
             token_url=env('TOKEN_URL'),
             audience=env('AUDIENCE'),
             issuer=env('ISSUER'),
-            key=env('KEY')
+            key_kedo=env('KEY_KEDO'),
+            key_dev=env('KEY_DEV')
         ),
         token_data=TokenData(
-            token=env('TOKEN_RECRUITMENT'),
+            token=env('TOKEN_RECRUITER'),
             base_url=env('BASE_URL'),
             issuer=env('ISSUER'),
             employee_workplace_id=env('employee_workplace_Id'),
             employee_id=env('employee_Id'),
-            key=env('KEY')
         )
     )

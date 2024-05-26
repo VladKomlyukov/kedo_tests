@@ -2,6 +2,7 @@ import json
 from typing import Union
 
 import requests as r
+from requests.exceptions import RequestException
 
 from data.data import BASE_URL_V3, put_employee_body_generate, employee_body_generate, VARIABLES
 
@@ -12,19 +13,20 @@ class ApiStaffClient:
     class Employees:
         """Сотрудники"""
 
-        def get_employee_personal_info(self, headers: dict) -> Union[int, str, tuple]:
+        def get_employee_personal_info(self, headers: dict) -> tuple:
             """Получение перс. данных"""
             response = r.get(f'{BASE_URL_V3}/staff/Employees/PersonalInfo', headers=headers)
             data = response.json()
             VARIABLES['Employee_Id_current_user'] = data['Id']
-            return response.status_code, response.json()
+            return response.status_code, response.json(), response.url
 
-        def get_employees(self, headers: dict) -> Union[int, str, tuple]:
-            """Получть информацию о сотрудниках"""
+
+        def get_employees(self, headers: dict) -> tuple:
+            """Получить информацию о сотрудниках"""
             response = r.get(f'{BASE_URL_V3}/staff/Employees', headers=headers)
-            return response.status_code, response.json()
+            return response.status_code, response.json(), response.url
 
-        def post_employee(self, headers: dict, resident: bool) -> Union[int, str, tuple]:
+        def post_employee(self, headers: dict, resident: bool) -> tuple:
             """Создание сотрудника
             :param bool resident: сотрудник - резидент / нерезидент
             """
@@ -34,9 +36,9 @@ class ApiStaffClient:
                 VARIABLES["Created_Employee_Id"] = response.text
             else:
                 VARIABLES["Created_Employee_Id_not_resident"] = response.text
-            return response.status_code
+            return response.status_code, response.text, response.url
 
-        def get_employee_by_id(self, headers: dict, resident: bool) -> Union[int, str, tuple]:
+        def get_employee_by_id(self, headers: dict, resident: bool) -> tuple:
             """Получение информации о Сотруднике по Id
             :param bool resident: сотрудник - резидент / нерезидент
             """
@@ -44,14 +46,14 @@ class ApiStaffClient:
                 response = r.get(f'{BASE_URL_V3}/staff/Employees/{VARIABLES["Created_Employee_Id"]}',
                                  headers=headers)
                 VARIABLES["Created_Employee_Id_info"] = response.json()
-                return response.status_code, response.json()
+                return response.status_code, response.json(), response.url
             else:
                 response = r.get(f'{BASE_URL_V3}/staff/Employees/{VARIABLES["Created_Employee_Id_not_resident"]}',
                                  headers=headers)
                 VARIABLES["Created_Employee_Id_info_not_resident"] = response.json()
-                return response.status_code, response.json()
+                return response.status_code, response.json(), response.url
 
-        def get_employee_by_id_current_user(self, headers: dict) -> Union[int, str, dict]:
+        def get_employee_by_id_current_user(self, headers: dict) -> tuple:
             """Получить информацию о текущем сотруднике по Id"""
             response = r.get(f'{BASE_URL_V3}/staff/Employees/{VARIABLES["Employee_Id_current_user"]}',
                              headers=headers)
@@ -60,9 +62,9 @@ class ApiStaffClient:
             VARIABLES['Subdivision_Id'] = data['EmployeeWorkplaces'][0]['Subdivision']['Id']
             VARIABLES['JobTitle_Id'] = data['EmployeeWorkplaces'][0]['JobTitle']['Id']
             VARIABLES["Employee_Id_current_user_info"] = data
-            return status_code
+            return status_code, data, response.url
 
-        def put_employee_by_id(self, headers: dict, resident: bool) -> Union[int, str, tuple]:
+        def put_employee_by_id(self, headers: dict, resident: bool) -> tuple:
             """Изменение информации о Сотруднике по Id
             :param bool resident: сотрудник - резидент / нерезидент
             """
@@ -71,16 +73,16 @@ class ApiStaffClient:
                                                              is_resident=resident))
                 response = r.put(f'{BASE_URL_V3}/staff/Employees/{VARIABLES["Created_Employee_Id"]}',
                                  headers=headers, data=data)
-                return response.status_code, response.text
+                return response.status_code, response.text, response.url
             else:
                 data = json.dumps(put_employee_body_generate(employee_info_data=
                                                              VARIABLES["Created_Employee_Id_info_not_resident"],
                                                              is_resident=resident))
                 response = r.put(f'{BASE_URL_V3}/staff/Employees/{VARIABLES["Created_Employee_Id_not_resident"]}',
                                  headers=headers, data=data)
-                return response.status_code, response.text
+                return response.status_code, response.text, response.url
 
-        def get_employee_certificates(self, headers: dict) -> Union[int, str, tuple]:
+        def get_employee_certificates(self, headers: dict) -> tuple:
             """Получить сертификаты пользователя"""
             response = r.get(f'{BASE_URL_V3}/staff/Employees/Certificates', headers=headers)
             data = response.json()
@@ -90,4 +92,4 @@ class ApiStaffClient:
                     break
             else:
                 print('Issued Certificate was not found')
-            return response.status_code, response.json()
+            return response.status_code, response.json(), response.url

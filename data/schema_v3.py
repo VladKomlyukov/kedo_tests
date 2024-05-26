@@ -1569,7 +1569,7 @@ tenant_inbox_agreement_required_schema_v3: dict = {
                                 "type": ["null", "string"]
                             },
                             "LastModificationTime": {
-                                "type": "string"
+                                "type": ["null", "string"]
                             },
                             "LastModifierId": {
                                 "type": ["null", "string"]
@@ -1589,7 +1589,6 @@ tenant_inbox_agreement_required_schema_v3: dict = {
                             "LastName",
                             "Gender",
                             "IsDeleted",
-                            "LastModificationTime",
                             "CreationTime",
                             "Id"
                         ]
