@@ -10,6 +10,8 @@
 |  |--api_saga_v1.py
 |  |--api_staff_v1.py
 |  |--api_staff_v3.py
+|--baseclasses
+|--|--response.py     # файл с методами для работы с response
 |--data
 |  |--data.py         # файл с функциями для генерации данных и переменными
 |  |--db.py           # файл подключения к БД
@@ -33,8 +35,28 @@
 |--requirements.txt   # зависимости
 ```
 
-**ВАЖНО!** Перед запуском тестов обязательно устанавливаем зависимости:
+**ВАЖНО!** Перед запуском тестов обязательно устанавливаем виртуальное окружение и зависимости:
 
+**Установка виртуального окружения:**
+```shell
+python -m venv venv
+```
+**Активация виртуального окружения:**
+
+ Активация виртуального окружения в bash:
+```bash
+source venv/bin/activate
+```
+
+На Windows в командной строке терминала cmd нужно выполнить:
+```commandline
+venv\Scripts\activate.bat
+```
+На Windows в командной строке терминала Power Shell:
+```shell
+venv\Scripts\activate.ps1
+```
+Устанавливаем зависимости:
 ```bash
 pip install -r requirements.txt
 ```
@@ -47,8 +69,7 @@ pip install -r requirements.txt
 В переменные с названием **TOKEN** вставляем токены пользователей с типом **"Development"**, в переменную 
 **BASE_URL_STAGE** 
 вставляем ссылку на api 
-STAGE-стенда, в переменные employee_workplace_Id_sender, employee_workplace_Id_recipient и 
-employee_workplace_Id_not_resident вставляем соответствующие id рабочих мест. 
+STAGE-стенда, в переменные employee_workplace_Id_... вставляем соответствующие id рабочих мест. 
 Перед запуском тестов необходимо заполнить все переменные в файле **.env** и пробросить порт к БД Stage-стенда.
 
 # Запуск тестов
